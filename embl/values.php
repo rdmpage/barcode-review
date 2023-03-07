@@ -1,6 +1,6 @@
 <?php
 
-// fetch genbank versions
+// Get metadata details from CouchDB
 
 
 //----------------------------------------------------------------------------------------
@@ -53,49 +53,36 @@ $force = false;
 
 $count = 1;
 
+$hits = array();
+
 $file_handle = fopen($filename, "r");
 while (!feof($file_handle)) 
 {
 	$accession = trim(fgets($file_handle));
 	
 	$accession = str_replace('-SUPPRESSED', '', $accession );
-
-	if (preg_match('/(?<prefix>[A-Z]+)(?<suffix>\d+)(\.\d+)?$/', $accession, $m))
+	
+	
+	$value = 'doi';
+	$value = 'pmid';
+	$value = 'lat_lon';
+	//$value = 'specimen_voucher';
+	$value = 'sp';
+	
+	$url = 'http://admin:peacrab@127.0.0.1:5984/embl/_design/values/_view/' . $value . '?key=' . urlencode('"' . $accession . '"');
+	
+	$json = get($url);
+	
+	$obj = json_decode($json);
+	
+	if (isset($obj->rows[0]))
 	{
-
-		$dir = dirname(__FILE__)  . "/html/" . $m['prefix'];
-		if (!file_exists($dir))
-		{
-			$oldumask = umask(0); 
-			mkdir($dir, 0777);
-			umask($oldumask);
-		}
-		
-		$output_filename = $dir . '/' . $m['suffix'] . '.html';
-		
-		if (!file_exists($output_filename) || $force)
-		{
-	
-			$url = 'https://www.ncbi.nlm.nih.gov/nuccore/' . $accession . '?report=girevhist';
-	
-			$html = get($url);
-	
-			if ($html != '')
-			{	
-				echo $accession . "\n";
-				file_put_contents($output_filename, $html);
-				
-				// Give server a break every 10 items
-				if (($count++ % 10) == 0)
-				{
-					$rand = rand(1000000, 3000000);
-					echo "\n-- ...sleeping for " . round(($rand / 1000000),2) . ' seconds' . "\n\n";
-					usleep($rand);
-				}
-			}					
-		}
+		$hits[] = $obj->rows[0]->value;
 	}
-}
 	
-?>
+	
+}
 
+print_r($hits);
+
+?>
