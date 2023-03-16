@@ -24,17 +24,49 @@ function ncbi_date_to_timestamp($date_string)
 	return $timestamp;
 }
 
+//----------------------------------------------------------------------------------------
+
 
 $basedir = "html";
 
-$accessions = array(
-'HQ918302',
-'MN184166',
-'HQ918405',
-'FJ209223',
-'JF492643',
-'JF491468',
+
+$accessions=array(
+'MF132148',
+'JN312089',
+'JF454444',
+'JF453030',
+'JF846690',
+'MG936888',
+'HQ938008',
+'HQ600936',
+'KX069615',
+'HQ023471',
+'MW487546',
+'MN674269',
+'MN668823',
+'MN665772',
+'HQ024360',
+'KX145591',
+'KX043603',
+'JF870733',
+'KR976448',
+'KR946139',
+'MG475424',
+'KR975581',
+'MF937163',
+'KR433985',
+'MG507332',
+'KM993996',
+'KR440670',
+'KR254389',
+'MF923950',
+'KR990954',
+'KR443398',
+'KR794258',
+
 );
+
+
 
 $accessions=array(
 'MF132148',
@@ -1040,8 +1072,22 @@ $accessions=array(
 );
 
 
+// read from file
+$filename = "accessions.txt";
 
-$xy = array();
+$accessions = array();
+
+$file_handle = fopen($filename, "r");
+while (!feof($file_handle)) 
+{
+	$accession = trim(fgets($file_handle));
+	$accession = str_replace('-SUPPRESSED', '', $accession );
+	
+	$accessions[] = $accession;
+
+}
+ 
+$records = array();
 
 foreach ($accessions as $accession)
 {
@@ -1148,6 +1194,12 @@ foreach ($accessions as $accession)
 	
 			//$obj->revisions = array_unique($obj->revisions);
 			
+			if (count($obj->revisions) == 0)
+			{
+				echo "$accession no revisions\n";
+				exit();
+			}
+			
 			$obj->update_times = array();
 			$obj->comment_times = array();
 			
@@ -1169,28 +1221,132 @@ foreach ($accessions as $accession)
 				}
 			}
 			
-			$obj->edits = $obj->update_times;
-			$obj->edits = array_merge($obj->edits, $obj->comment_times);
+			$records[] = $obj;
 			
-			sort($obj->edits);
+			// updates
+			$edits = $obj->update_times;
+			sort($edits);			
+			$created = $edits[0];			
+			$points[$created][0] = $edits;
 			
-			$points[$obj->edits[0]] = $obj->edits;
-			
+			// comments
+			$edits = $obj->comment_times;
+			sort($edits);
+			$points[$created][1] = $edits;		
 			
 
-			print_r($obj);
+			//print_r($obj);
+		}
+		else
+		{
+			echo "$accession bad\n";
+			exit();
 		}
 	}
 }
 
-print_r($points);
+//print_r($points);
 
-foreach ($points as $created => $edited)
+// Output data to plot
+echo "edited\tcreated\tcommented\n";
+foreach ($points as $created => $edits)
 {
-	foreach ($edited as $edit)
+	foreach ($edits[0] as $edit)
 	{
-		echo "$edit\t$created\n";
+		echo "$edit\t$created\t\n";
 	}
+	foreach ($edits[1] as $edit)
+	{
+		echo "$edit\t\t$created\n";
+	}
+}
+
+if (1)
+{
+	$edit_frequency = array();
+
+	foreach ($records as $obj)
+	{
+		$edits = count($obj->revisions);
+		if (isset($obj->comments))
+		{
+			$edits += count($obj->comments);
+		}
+	
+		if (!isset($edit_frequency[$edits]))
+		{
+			$edit_frequency[$edits] = 0;
+		}
+		$edit_frequency[$edits]++;
+	}
+	
+	ksort($edit_frequency);
+	
+	print_r($edit_frequency);
+
+}
+
+
+
+if (0)
+{
+	$num_suppressed = 0;
+	$num_unsuppressed = 0;
+
+	foreach ($records as $obj)
+	{
+		if (isset($obj->comments))
+		{
+			print_r($obj->comments);
+		
+			$suppressed = 0;
+			$unsuppressed = 0;
+		
+			$current_status = '';
+		
+			$latest = 0;
+		
+			foreach ($obj->comments as $datetime => $comment)
+			{
+				if (preg_match('/^suppressed/', $comment))
+				{
+					$suppressed++;
+				}
+			
+				$timestamp = ncbi_date_to_timestamp($datetime);
+			
+				if ($timestamp > $latest)
+				{
+					if (preg_match('/^suppressed/', $comment))
+					{
+						$current_status = "suppressed";
+					}
+					if (preg_match('/^unsuppressed/', $comment))
+					{
+						$current_status = "unsuppressed";
+					}
+				
+					$latest = $timestamp;
+				
+				}
+			
+			
+			}
+		
+			if ($suppressed > 0)
+			{
+				$num_suppressed++;
+			}
+			if ($current_status ==  "unsuppressed")
+			{
+				$num_unsuppressed++;
+			}
+		
+		}
+	}
+
+	echo "  Num suppressed: $num_suppressed\n";
+	echo "Num unsuppressed: $num_unsuppressed\n";
 }
 
 ?>

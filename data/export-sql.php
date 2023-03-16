@@ -24,7 +24,12 @@ $headings = array();
 
 $row_count = 0;
 
+$table = 'barcode';
 $filename = "BOLD_Public.28-Sep-2022.tsv";
+
+$table = 'ibol';
+$filename = "../downloads/iBOLD.31-Dec-2016/iBOLD.31-Dec-2016.tsv";
+
 
 $file_handle = fopen($filename, "r");
 while (!feof($file_handle)) 
@@ -195,7 +200,7 @@ while (!feof($file_handle))
 				}
 			}
 			
-			echo 'REPLACE INTO barcode(' . join(",", $keys) . ') VALUES (' . join(",", $values) . ');' . "\n"; 
+			echo 'REPLACE INTO ' . $table . '(' . join(",", $keys) . ') VALUES (' . join(",", $values) . ');' . "\n"; 
 		}
 	}	
 	

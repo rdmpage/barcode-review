@@ -51,7 +51,7 @@ $filename = "accessions.txt";
 
 $force = false;
 
-$count = 1;
+$count = 0;
 
 $hits = array();
 
@@ -62,27 +62,37 @@ while (!feof($file_handle))
 	
 	$accession = str_replace('-SUPPRESSED', '', $accession );
 	
+	// do we have this sequence?
+	$url = 'http://admin:peacrab@127.0.0.1:5984/embl/' . $accession;
 	
-	$value = 'doi';
-	$value = 'pmid';
-	$value = 'lat_lon';
-	//$value = 'specimen_voucher';
-	$value = 'sp';
+	$sequence = get($url);
 	
-	$url = 'http://admin:peacrab@127.0.0.1:5984/embl/_design/values/_view/' . $value . '?key=' . urlencode('"' . $accession . '"');
-	
-	$json = get($url);
-	
-	$obj = json_decode($json);
-	
-	if (isset($obj->rows[0]))
+	if ($sequence != '')
 	{
-		$hits[] = $obj->rows[0]->value;
-	}
+		$count++;
+		
+		$value = 'doi';
+		//$value = 'pmid';
+		//$value = 'lat_lon';
+		//$value = 'specimen_voucher';
+		//$value = 'sp';
 	
+		$url = 'http://admin:peacrab@127.0.0.1:5984/embl/_design/values/_view/' . $value . '?key=' . urlencode('"' . $accession . '"');
+	
+		$json = get($url);
+	
+		$obj = json_decode($json);
+	
+		if (isset($obj->rows[0]))
+		{
+			$hits[] = $obj->rows[0]->value;
+		}
+	}
 	
 }
 
 print_r($hits);
+
+echo "Sequences: $count\n";
 
 ?>

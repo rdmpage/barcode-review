@@ -59,6 +59,8 @@ while (!feof($file_handle))
 	$accession = trim(fgets($file_handle));
 	
 	$accession = str_replace('-SUPPRESSED', '', $accession );
+	
+	echo $accession . "\n";
 
 	if (preg_match('/(?<prefix>[A-Z]+)(?<suffix>\d+)(\.\d+)?$/', $accession, $m))
 	{
