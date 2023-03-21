@@ -24,11 +24,17 @@ $headings = array();
 
 $row_count = 0;
 
-$table = 'barcode';
-$filename = "BOLD_Public.28-Sep-2022.tsv";
+if (1)
+{
+	$table = 'barcode';
+	$filename = "../downloads/BOLD_Public.28-Sep-2022/BOLD_Public.28-Sep-2022.tsv";
+}
 
-$table = 'ibol';
-$filename = "../downloads/iBOLD.31-Dec-2016/iBOLD.31-Dec-2016.tsv";
+if (0)
+{
+	$table = 'ibol';
+	$filename = "../downloads/iBOLD.31-Dec-2016/iBOLD.31-Dec-2016.tsv";
+}
 
 
 $file_handle = fopen($filename, "r");
@@ -72,6 +78,7 @@ while (!feof($file_handle))
 					case 'sampleid':
 					case 'specimenid':
 					case 'fieldid':
+					case 'museumid':
 						$obj->{$k} = $v;
 						break;
 				

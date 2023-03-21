@@ -123,10 +123,6 @@ foreach ($files as $filename)
 								$obj->{$k} = $v;
 								break;
 						
-							case 'museumid':
-								$obj->specimenid = $v;
-								break;
-						
 							// taxonomy (we do the hierarchy separately below)
 							case 'bin_guid':
 								$obj->bin_uri = $v;
