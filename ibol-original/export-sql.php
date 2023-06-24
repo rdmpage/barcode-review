@@ -119,6 +119,7 @@ foreach ($files as $filename)
 								break;					
 					
 							case 'sampleid':
+							case 'museumid':
 							case 'fieldid':
 								$obj->{$k} = $v;
 								break;

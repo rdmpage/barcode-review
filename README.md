@@ -17,6 +17,11 @@ Data used here is [BOLD DNA Barcode Reference Library 28-SEP-2022](https://www.b
 
 This data looks to be the iBOL data, but with taxonomic updates(?). Need to figure out is this a snap shot of the original data in 2016, or a snapshot of the barcodes from iBOL extracted from a more recent version of BOLD?
 
+Note that the original data is available as a set of separate files from http://bins.boldsystems.org/index.php/datarelease
+
+
+
+
 ## Select random subset of data
 
 See https://stackoverflow.com/a/24591688
@@ -92,6 +97,24 @@ SELECT COUNT(processid) FROM ibol WHERE marker_code="COI-5P";
 
 2,784,901 barcodes (cf. 2,789,906 in original dump).
 
+##### Raw counts
+
+ibolog (original) = 2789906, ibol (edited) = 2788468
+
+To find differences:
+
+```
+-- 1438 records in ibolog but not in ibol
+SELECT ibol.processid, ibolog.processid, ibolog.sampleid, ibolog.bin_uri, ibolog.taxon, ibolog.gb_acs
+FROM ibolog 
+LEFT JOIN ibol ON ibol.processid = ibolog.processid 
+WHERE ibol.processid IS NULL;
+```
+
+
+
+##### Precision
+
 If we do the same query on the updated BARCODE 500K dataset:
 
 ```
@@ -150,11 +173,6 @@ SELECT COUNT(processid) FROM ibol WHERE marker_code="COI-5P" AND gb_acs LIKE "%-
 
 
 
-### Data
-
-Original iBOL records: http://bins.boldsystems.org/index.php/datarelease
-
-More recent version of those records: [International Barcode of Life data](http://www.boldsystems.org/index.php/datapackage?id=iBOLD.31-Dec-2016) [doi:10.5883/DP-iBOLD.31-Dec-2016](https://doi.org/10.5883/DP-iBOLD.31-Dec-2016)
 
 ### Queries
 
@@ -197,6 +215,55 @@ Array
 )
 ```
 
+
+## Images
+
+Image links aren’t included in BOLD dumps, so retrieve from GBIF.
+
+
+## GBIF versus BOLD
+
+BOLD:AAH8705 has one record in GBIF but 12 in `ibol`
+
+## Questions
+
+What identification method used to upgrade the records?
+
+Can we cluster institutions?
+
+Can we identify specimens?
+
+Are taxonomic names valid?
+
+Can we flag records that have been updated so we can then do further queries?
+
+Target sequences that were upgraded
+Target sequences that have specimens
+Have specimen codes changed?
+
+What changed?
+
+
+## Cleaning
+
+### Institutions
+
+Get institutions
+
+SELECT DISTINCT inst FROM ibolog WHERE inst IS NOT NULL ORDER BY inst;
+
+Identification methods
+
+```
+SELECT COUNT(processid) AS c, identificationmethod FROM ibol WHERE identificationmethod IS NOT NULL GROUP BY identificationmethod;
+
+```
+
+### Identification methods
+
+```
+SELECT COUNT(processid) AS count, identificationmethod FROM ibol WHERE identificationmethod IS NOT NULL GROUP BY identificationmethod ORDER BY count DESC;
+```
 
 
 

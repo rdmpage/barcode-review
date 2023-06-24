@@ -24,7 +24,7 @@ $headings = array();
 
 $row_count = 0;
 
-if (1)
+if (0)
 {
 	$table = 'barcode';
 	$filename = "../downloads/BOLD_Public.28-Sep-2022/BOLD_Public.28-Sep-2022.tsv";
@@ -36,6 +36,12 @@ if (0)
 	$filename = "../downloads/iBOLD.31-Dec-2016/iBOLD.31-Dec-2016.tsv";
 }
 
+
+if (1)
+{
+	$table = 'barcode';
+	$filename = "../downloads/BOLD_Public.16-Jun-2023/BOLD_Public.16-Jun-2023.tsv";
+}
 
 $file_handle = fopen($filename, "r");
 while (!feof($file_handle)) 
@@ -58,7 +64,7 @@ while (!feof($file_handle))
 		
 			foreach ($row as $k => $v)
 			{
-				if ($v != '')
+				if ($v != '' && $v != "None")
 				{
 					$data->{$headings[$k]} = $v;
 				}
@@ -86,6 +92,11 @@ while (!feof($file_handle))
 					case 'identificationmethod':
 					case 'bin_uri':
 					case 'taxon':
+						$obj->{$k} = $v;
+						break;
+						
+					// reference for name
+					case 'species_reference':
 						$obj->{$k} = $v;
 						break;
 						
@@ -183,6 +194,12 @@ while (!feof($file_handle))
 				unset($obj->id_precision);
 			}
 			
+			// some version of the data lack the taxon field
+			if (!isset($obj->taxon))
+			{
+				$obj->taxon = $obj->lineage[count($obj->lineage) - 1];
+			}
+			
 			// print_r($obj);
 			
 			// export			
@@ -214,7 +231,7 @@ while (!feof($file_handle))
 	$row_count++;
 	
 	// If we are just playing
-	if ($row_count == 10000)
+	if ($row_count == 100)
 	{
 		//exit();
 	}
