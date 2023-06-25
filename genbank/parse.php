@@ -8,6 +8,8 @@ $basedir = dirname(__FILE__) . '/.';
 
 $files = scandir($basedir);
 
+//$files = array('x.json');
+
 
 $ids = array();
 
@@ -48,13 +50,18 @@ foreach ($files as $filename)
 					
 					if (isset($v->subtype))
 					{
-						$keys = explode("\", $v->subtype);						
-						$values = explode("\", $v->subname);
+						$keys = explode("|", $v->subtype);						
+						$values = explode("|", $v->subname);
+						
+						//print_r($keys);
 						
 						$index = array_search('specimen_voucher', $keys);
-						if ($index)
+						if ($index === false)
 						{
-							$vocuher = $values[$index];
+						}
+						else
+						{
+							$voucher = $values[$index];
 						}
 					}
 					$row[] = $voucher;

@@ -265,6 +265,14 @@ SELECT COUNT(processid) AS c, identificationmethod FROM ibol WHERE identificatio
 SELECT COUNT(processid) AS count, identificationmethod FROM ibol WHERE identificationmethod IS NOT NULL GROUP BY identificationmethod ORDER BY count DESC;
 ```
 
+## GenBank sequences
+
+// find those that have BARCODE keyword
+
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&retmax=2000000&term=BARCODE%5BKeyword%5D
+
+21–0-2023 1177549 records
+
 
 
 

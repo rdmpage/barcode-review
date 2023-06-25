@@ -10,3 +10,5 @@ data/*.sql
 ibol-original/*.sql
 ibol-original/*.tsv
 ibol-original/__MACOSX
+*.db-wal
+*.db-shm
